@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F3F0E9;
+  --surface: #FAF9F5;
+  --cream: #F1E6BD;
+  --yellow: #E8D98F;
+  --gold: #D99B19;
+  --sage: #8AA56D;
+  --olive: #6F8056;
+  --text: #242421;
+  --muted: #77756D;
+  --border: #DED9CA;
+  --card-shadow: 0 20px 45px -15px rgba(50, 45, 30, 0.07), 0 0 1px 1px rgba(222, 217, 202, 0.4);
+  --soft-shadow: 0 10px 30px -10px rgba(60, 52, 36, 0.06);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'IBM Plex Sans Arabic', 'Cairo', system-ui, -apple-system, sans-serif;
+  background-color: #F3F0E9;
+  color: #242421;
+  overflow-x: hidden;
+  direction: rtl;
+}
+
+.font-editorial {
+  font-family: 'Cairo', 'IBM Plex Sans Arabic', sans-serif;
+  font-weight: 700;
+}
+
+.font-mono-num {
+  font-family: 'Cairo', 'IBM Plex Sans Arabic', sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Subtle organic grain texture overlay */
+.bg-grain {
+  background-image: radial-gradient(rgba(36, 36, 33, 0.03) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* Custom smooth scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #F3F0E9;
+}
+::-webkit-scrollbar-thumb {
+  background: #DED9CA;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C4BEAD;
+}

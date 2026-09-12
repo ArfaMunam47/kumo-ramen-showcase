@@ -13,7 +13,9 @@ import { FoodHeroHeader } from './components/FoodHeroHeader';
 import { FoodRotator } from './components/FoodRotator';
 import { EditorialFoodInterlude } from './components/EditorialFoodInterlude';
 import { FoodMenuSection } from './components/FoodMenuSection';
+import { FoodOrbitShowcase } from './components/FoodOrbitShowcase';
 import { CraftPhilosophySection } from './components/CraftPhilosophySection';
+import { ArtisanCtaSection } from './components/ArtisanCtaSection';
 import { ProperFooter } from './components/ProperFooter';
 import { SearchModal } from './components/SearchModal';
 import { ProductDetailPage } from './components/ProductDetailPage';
@@ -91,10 +93,10 @@ export default function App() {
         />
 
         {/* --------------------------------------------------------- */}
-        {/* 2. CONTINUOUS FOOD SHOWCASE (FOOD ROTATOR)               */}
-        {/* Smooth, living rotating food showcase across 8 dishes     */}
+        {/* 2. CIRCULAR TACTILE SHOWCASE (3S AUTO ROTATION)           */}
+        {/* Circular Stoneware vessel with deep drop shadows & 3s timer*/}
         {/* --------------------------------------------------------- */}
-        <div className="w-full mb-16 sm:mb-24">
+        <div className="w-full mb-10 sm:mb-14">
           <FoodRotator
             onOpenProductDetails={(dish) => setSelectedProduct(dish)}
           />
@@ -104,7 +106,7 @@ export default function App() {
         {/* 3. EDITORIAL FOOD INTERLUDE / CRAFT STANDARDS            */}
         {/* Elevates the culinary authority and extends page depth   */}
         {/* --------------------------------------------------------- */}
-        <div className="w-full mb-20 sm:mb-28">
+        <div className="w-full mb-16 sm:mb-20">
           <EditorialFoodInterlude />
         </div>
 
@@ -112,7 +114,7 @@ export default function App() {
         {/* 4. THE MENU: 17-DISH ASYMMETRIC COLLECTION WITH 3D FOOD  */}
         {/* "Made to be looked at. Made to be eaten."                 */}
         {/* --------------------------------------------------------- */}
-        <div className="w-full mb-24 sm:mb-32 lg:mb-40">
+        <div className="w-full mb-16 sm:mb-20">
           <FoodMenuSection
             dishes={ALL_PRODUCTS}
             onOpenProductDetails={(dish) => setSelectedProduct(dish)}
@@ -120,10 +122,27 @@ export default function App() {
         </div>
 
         {/* --------------------------------------------------------- */}
+        {/* 5. 3D BLUR-TO-FOCUS SHOWCASE (BEFORE CTA & FOOTER)        */}
+        {/* Manual Click, Blurry Sides, Highlight Center, 1 Page     */}
+        {/* --------------------------------------------------------- */}
+        <div className="w-full mb-16 sm:mb-20">
+          <FoodOrbitShowcase
+            onSelectProduct={(dish) => setSelectedProduct(dish)}
+          />
+        </div>
+
+        {/* --------------------------------------------------------- */}
         {/* 6. THE THREE PILLARS OF CRAFTSMANSHIP & TASTING FLIGHT   */}
         {/* --------------------------------------------------------- */}
-        <div className="w-full mb-24 sm:mb-32 lg:mb-40">
+        <div className="w-full mb-20 sm:mb-28">
           <CraftPhilosophySection />
+        </div>
+
+        {/* --------------------------------------------------------- */}
+        {/* 7. PRIVATE ATELIER TASTING CALL TO ACTION SECTION        */}
+        {/* --------------------------------------------------------- */}
+        <div className="w-full">
+          <ArtisanCtaSection />
         </div>
 
       </main>

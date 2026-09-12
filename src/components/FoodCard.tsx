@@ -113,11 +113,14 @@ export const FoodCard: React.FC<FoodCardProps> = ({
             src={dish.image}
             alt={dish.name}
             onLoad={() => setImageLoaded(true)}
-            className={`w-full h-full object-cover rounded-full select-none transition-all duration-700 ease-out ${
-              imageLoaded ? 'opacity-100 scale-100 blur-0' : 'opacity-0 scale-95 blur-[4px]'
+            className={`w-full h-full object-cover rounded-full select-none transition-opacity duration-300 ease-out ${
+              imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
             decoding="async"
             referrerPolicy="no-referrer"
+            style={{
+              imageRendering: '-webkit-optimize-contrast',
+            }}
             onError={(e) => {
               // Fail-safe fallback so no picture ever appears broken
               e.currentTarget.src = '/src/assets/images/ramen_hero_bowl_1789137270027.jpg';

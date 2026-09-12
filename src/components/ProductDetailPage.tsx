@@ -119,9 +119,13 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ dish, onBa
                 <img
                   src={dish.image}
                   alt={dish.name}
+                  loading="eager"
                   className={`w-full h-full object-cover select-none ${dish.id === 'smoked-duck-shoyu-ramen' ? 'rounded-[28px]' : 'rounded-full'}`}
-                  decoding="async"
+                  decoding="sync"
                   referrerPolicy="no-referrer"
+                  style={{
+                    imageRendering: '-webkit-optimize-contrast',
+                  }}
                   onError={(e) => {
                     e.currentTarget.src = '/src/assets/images/ramen_hero_bowl_1789137270027.jpg';
                   }}

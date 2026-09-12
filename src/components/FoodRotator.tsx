@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ProductDish, SEVENTEEN_MENU_DISHES } from '../data/arabicShowcaseData';
+import { ProductDish, ALL_PRODUCTS } from '../data/arabicShowcaseData';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, ArrowLeft, ArrowRight, Eye, Utensils } from 'lucide-react';
+import { Sparkles, Eye, Pause, Play } from 'lucide-react';
 
 interface FoodRotatorProps {
   onOpenProductDetails: (dish: ProductDish) => void;
@@ -19,88 +19,174 @@ const ROTATOR_DISH_IDS = [
   'miso-corn-ramen',
 ];
 
-interface FloatingIngredient {
+// 4-side culinary ingredient callouts for each dish (with safe offset classes well outside the food circle)
+interface CulinaryCallout {
   name: string;
   nameEn: string;
+  badge: string;
   positionClass: string;
 }
 
-const INGREDIENTS_BY_DISH: Record<string, FloatingIngredient[]> = {
+const DISH_CALLOUTS: Record<string, CulinaryCallout[]> = {
   'kumo-miso': [
-    { name: 'نودلز هوكايدو يدوية', nameEn: 'Handmade Wheat Noodles', positionClass: 'top-8 right-6 lg:top-12 lg:right-16' },
-    { name: 'ثوم محمص ببطء', nameEn: 'Slow-Toasted Garlic', positionClass: 'bottom-12 right-10 lg:bottom-16 lg:right-24' },
-    { name: 'ميسو معتق ٣ سنوات', nameEn: '3-Year Aged Miso', positionClass: 'top-10 left-6 lg:top-14 lg:left-20' },
-    { name: 'سمسم ذهبي محمص', nameEn: 'Toasted Golden Sesame', positionClass: 'bottom-10 left-8 lg:bottom-20 lg:left-20' },
+    { name: 'ميسو معتق ٣ سنوات', nameEn: '3-Year Cedar Miso', badge: 'تخمير حجري', positionClass: 'top-1 right-1 sm:top-2 sm:right-2 md:top-3 md:right-4' },
+    { name: 'نودلز هوكايدو يدوية', nameEn: 'Hand-Pulled Wheat', badge: 'عجن بطيء', positionClass: 'top-1 left-1 sm:top-2 sm:left-2 md:top-3 md:left-4' },
+    { name: 'ثوم محمص ببطء', nameEn: 'Slow-Charred Garlic', badge: 'زيت عطري', positionClass: 'bottom-1 right-1 sm:bottom-2 sm:right-2 md:bottom-3 md:right-4' },
+    { name: 'سمسم ذهبي محمص', nameEn: 'Golden Toasted Sesame', badge: 'طحن بارد', positionClass: 'bottom-1 left-1 sm:bottom-2 sm:left-2 md:bottom-3 md:left-4' },
   ],
   'kuro-tonkotsu': [
-    { name: 'زيت مايو الأسود', nameEn: 'Roasted Black Mayu', positionClass: 'top-8 right-6 lg:top-12 lg:right-16' },
-    { name: 'فطر كيكوراجي مقرمش', nameEn: 'Crispy Wood Ear Mushroom', positionClass: 'bottom-12 right-10 lg:bottom-16 lg:right-24' },
-    { name: 'شرائح شاشو مكرملة', nameEn: 'Caramelized Chashu', positionClass: 'top-10 left-6 lg:top-14 lg:left-20' },
-    { name: 'كراث بينشوتان محمص', nameEn: 'Charred Japanese Leek', positionClass: 'bottom-10 left-8 lg:bottom-20 lg:left-20' },
+    { name: 'زيت مايو الأسود', nameEn: 'Roasted Black Mayu', badge: 'تفحيم ثوم', positionClass: 'top-1 right-1 sm:top-2 sm:right-2 md:top-3 md:right-4' },
+    { name: 'فطر كيكوراجي مقرمش', nameEn: 'Crispy Wood Ear', badge: 'قرمشة صوتية', positionClass: 'top-1 left-1 sm:top-2 sm:left-2 md:top-3 md:left-4' },
+    { name: 'شرائح شاشو مكرملة', nameEn: 'Caramelized Chashu', badge: 'طهي بطيء', positionClass: 'bottom-1 right-1 sm:bottom-2 sm:right-2 md:bottom-3 md:right-4' },
+    { name: 'كراث بينشوتان محمص', nameEn: 'Charred Leek', badge: 'فحم طبيعي', positionClass: 'bottom-1 left-1 sm:bottom-2 sm:left-2 md:bottom-3 md:left-4' },
   ],
   'spicy-sesame-ramen': [
-    { name: 'طحينة سمسم حجرية', nameEn: 'Stone-Ground Sesame', positionClass: 'top-8 right-6 lg:top-12 lg:right-16' },
-    { name: 'زيت فلفل مقرمش', nameEn: 'Chili Crunch Oil', positionClass: 'bottom-12 right-10 lg:bottom-16 lg:right-24' },
-    { name: 'بوك تشوي طازج', nameEn: 'Charred Bok Choy', positionClass: 'top-10 left-6 lg:top-14 lg:left-20' },
-    { name: 'بصل أخضر مقرمش', nameEn: 'Fresh Spring Onion', positionClass: 'bottom-10 left-8 lg:bottom-20 lg:left-20' },
+    { name: 'طحينة سمسم حجرية', nameEn: 'Stone-Ground Sesame', badge: 'طحن يدوي', positionClass: 'top-1 right-1 sm:top-2 sm:right-2 md:top-3 md:right-4' },
+    { name: 'زيت فلفل مقرمش', nameEn: 'Chili Crunch Oil', badge: 'نقع بارد', positionClass: 'top-1 left-1 sm:top-2 sm:left-2 md:top-3 md:left-4' },
+    { name: 'بوك تشوي مقرمش', nameEn: 'Crisp Baby Bok Choy', badge: 'سوتيه هادئ', positionClass: 'bottom-1 right-1 sm:bottom-2 sm:right-2 md:bottom-3 md:right-4' },
+    { name: 'بصل أخضر مقرمش', nameEn: 'Fresh Spring Onion', badge: 'تقطيع يومي', positionClass: 'bottom-1 left-1 sm:bottom-2 sm:left-2 md:bottom-3 md:left-4' },
   ],
   'yuzu-chicken-ramen': [
-    { name: 'بشر قشور اليوزو', nameEn: 'Kochi Mountain Yuzu', positionClass: 'top-8 right-6 lg:top-12 lg:right-16' },
-    { name: 'صدر دجاج حر مدخن', nameEn: 'Smoked Free-Range Chicken', positionClass: 'bottom-12 right-10 lg:bottom-16 lg:right-24' },
-    { name: 'براعم خيزران غضة', nameEn: 'Tender Bamboo Shoots', positionClass: 'top-10 left-6 lg:top-14 lg:left-20' },
-    { name: 'أعشاب كوجو الجبلية', nameEn: 'Wild Mountain Herbs', positionClass: 'bottom-10 left-8 lg:bottom-20 lg:left-20' },
+    { name: 'بشر قشور اليوزو', nameEn: 'Kochi Mountain Yuzu', badge: 'حمضيات نقية', positionClass: 'top-1 right-1 sm:top-2 sm:right-2 md:top-3 md:right-4' },
+    { name: 'دجاج حر مدخن', nameEn: 'Smoked Free-Range Chicken', badge: 'تدخين قيقب', positionClass: 'top-1 left-1 sm:top-2 sm:left-2 md:top-3 md:left-4' },
+    { name: 'براعم خيزران غضة', nameEn: 'Tender Menma Bamboo', badge: 'تتبيل تاري', positionClass: 'bottom-1 right-1 sm:bottom-2 sm:right-2 md:bottom-3 md:right-4' },
+    { name: 'أعشاب كوجو الجبلية', nameEn: 'Wild Mountain Herbs', badge: 'حصاد صباحي', positionClass: 'bottom-1 left-1 sm:bottom-2 sm:left-2 md:bottom-3 md:left-4' },
   ],
   'truffle-mushroom-ramen': [
-    { name: 'زيت الكمأة السوداء', nameEn: 'Black Truffle Essence', positionClass: 'top-8 right-6 lg:top-12 lg:right-16' },
-    { name: 'فطر الموريل البري', nameEn: 'Wild Morel Mushrooms', positionClass: 'bottom-12 right-10 lg:bottom-16 lg:right-24' },
-    { name: 'صفار بيض معتق', nameEn: 'Cured Golden Yolk', positionClass: 'top-10 left-6 lg:top-14 lg:left-20' },
-    { name: 'رقائق جذر اللوتس', nameEn: 'Crispy Lotus Chips', positionClass: 'bottom-10 left-8 lg:bottom-20 lg:left-20' },
+    { name: 'زيت الكمأة السوداء', nameEn: 'Black Truffle Oil', badge: 'استخلاص نقي', positionClass: 'top-1 right-1 sm:top-2 sm:right-2 md:top-3 md:right-4' },
+    { name: 'فطر الموريل البري', nameEn: 'Wild Morel Mushrooms', badge: 'سوتيه زبدة', positionClass: 'top-1 left-1 sm:top-2 sm:left-2 md:top-3 md:left-4' },
+    { name: 'صفار أونسن معتق', nameEn: 'Cured Golden Yolk', badge: 'نقع ٢٤ ساعة', positionClass: 'bottom-1 right-1 sm:bottom-2 sm:right-2 md:bottom-3 md:right-4' },
+    { name: 'رقائق جذر اللوتس', nameEn: 'Crispy Lotus Chips', badge: 'قلي خفيف', positionClass: 'bottom-1 left-1 sm:bottom-2 sm:left-2 md:bottom-3 md:left-4' },
   ],
   'chili-butter-ramen': [
-    { name: 'زبدة هوكايدو خام', nameEn: 'Hokkaido Cultured Butter', positionClass: 'top-8 right-6 lg:top-12 lg:right-16' },
-    { name: 'ميسو أحمر مدخن', nameEn: 'Smoked Red Miso', positionClass: 'bottom-12 right-10 lg:bottom-16 lg:right-24' },
-    { name: 'خيوط الفلفل الحريرية', nameEn: 'Silken Chili Threads', positionClass: 'top-10 left-6 lg:top-14 lg:left-20' },
-    { name: 'نودلز سميكة متموجة', nameEn: 'Wavy Thick Noodles', positionClass: 'bottom-10 left-8 lg:bottom-20 lg:left-20' },
+    { name: 'زبدة هوكايدو خام', nameEn: 'Cultured Hokkaido Butter', badge: 'حليب نقي', positionClass: 'top-1 right-1 sm:top-2 sm:right-2 md:top-3 md:right-4' },
+    { name: 'ميسو أحمر مدخن', nameEn: 'Smoked Red Miso', badge: 'تعتيق سنتين', positionClass: 'top-1 left-1 sm:top-2 sm:left-2 md:top-3 md:left-4' },
+    { name: 'خيوط الفلفل الحريرية', nameEn: 'Silken Chili Threads', badge: 'نكهة عطرية', positionClass: 'bottom-1 right-1 sm:bottom-2 sm:right-2 md:bottom-3 md:right-4' },
+    { name: 'نودلز سميكة متموجة', nameEn: 'Wavy Thick Noodles', badge: 'امتصاص مرق', positionClass: 'bottom-1 left-1 sm:bottom-2 sm:left-2 md:bottom-3 md:left-4' },
   ],
   'shoyu-classic-ramen': [
-    { name: 'صويا معتقة سنتين', nameEn: '2-Year Cedar Shoyu', positionClass: 'top-8 right-6 lg:top-12 lg:right-16' },
-    { name: 'شريحة نوري ذهبية', nameEn: 'Crisp Ariake Nori', positionClass: 'bottom-12 right-10 lg:bottom-16 lg:right-24' },
-    { name: 'براعم مينما متبلة', nameEn: 'Seasoned Menma', positionClass: 'top-10 left-6 lg:top-14 lg:left-20' },
-    { name: 'ناروتوماكي تقليدي', nameEn: 'Traditional Narutomaki', positionClass: 'bottom-10 left-8 lg:bottom-20 lg:left-20' },
+    { name: 'صويا معتقة براميل الأرز', nameEn: '2-Year Cedar Shoyu', badge: 'تعتيق تقليدي', positionClass: 'top-1 right-1 sm:top-2 sm:right-2 md:top-3 md:right-4' },
+    { name: 'شريحة نوري بحرية', nameEn: 'Crisp Ariake Nori', badge: 'حصاد شتوي', positionClass: 'top-1 left-1 sm:top-2 sm:left-2 md:top-3 md:left-4' },
+    { name: 'براعم مينما مقرمشة', nameEn: 'Seasoned Menma Shoots', badge: 'نقع أومامي', positionClass: 'bottom-1 right-1 sm:bottom-2 sm:right-2 md:bottom-3 md:right-4' },
+    { name: 'ناروتوماكي تقليدي', nameEn: 'Artisan Narutomaki', badge: 'دوامة البحر', positionClass: 'bottom-1 left-1 sm:bottom-2 sm:left-2 md:bottom-3 md:left-4' },
   ],
   'miso-corn-ramen': [
-    { name: 'ذرة حلوة مقرمشة', nameEn: 'Sweet Crisp Corn', positionClass: 'top-8 right-6 lg:top-12 lg:right-16' },
-    { name: 'مكعب زبدة ذائبة', nameEn: 'Melting Butter Cube', positionClass: 'bottom-12 right-10 lg:bottom-16 lg:right-24' },
-    { name: 'مرق ميسو ذهبي', nameEn: 'Golden Miso Broth', positionClass: 'top-10 left-6 lg:top-14 lg:left-20' },
-    { name: 'براعم بصل هوكايدو', nameEn: 'Hokkaido Spring Scallions', positionClass: 'bottom-10 left-8 lg:bottom-20 lg:left-20' },
+    { name: 'ذرة هوكايدو السكرية', nameEn: 'Sweet Hokkaido Corn', badge: 'قرمشة طبيعية', positionClass: 'top-1 right-1 sm:top-2 sm:right-2 md:top-3 md:right-4' },
+    { name: 'مكعب زبدة ذائبة', nameEn: 'Melting Butter Cube', badge: 'إذابة بطيئة', positionClass: 'top-1 left-1 sm:top-2 sm:left-2 md:top-3 md:left-4' },
+    { name: 'مرق ميسو ذهبي', nameEn: 'Golden Miso Broth', badge: '١٤ ساعة غليان', positionClass: 'bottom-1 right-1 sm:bottom-2 sm:right-2 md:bottom-3 md:right-4' },
+    { name: 'بصل أخضر هوكايدو', nameEn: 'Hokkaido Spring Scallions', badge: 'نضارة فورية', positionClass: 'bottom-1 left-1 sm:bottom-2 sm:left-2 md:bottom-3 md:left-4' },
   ],
+};
+
+// Rich, culinary-derived ambient lighting profiles for each dish
+const DISH_AMBIENT_LIGHTING: Record<string, {
+  glow: string;
+  glowWide: string;
+  borderGlow: string;
+  accent: string;
+}> = {
+  'kumo-miso': {
+    glow: 'rgba(217, 155, 25, 0.22)',
+    glowWide: 'rgba(232, 217, 143, 0.28)',
+    borderGlow: 'rgba(255, 215, 120, 0.85)',
+    accent: '#D99B19',
+  },
+  'kuro-tonkotsu': {
+    glow: 'rgba(180, 115, 60, 0.20)',
+    glowWide: 'rgba(210, 160, 115, 0.25)',
+    borderGlow: 'rgba(245, 195, 145, 0.80)',
+    accent: '#B4733C',
+  },
+  'spicy-sesame-ramen': {
+    glow: 'rgba(210, 95, 55, 0.22)',
+    glowWide: 'rgba(240, 140, 100, 0.28)',
+    borderGlow: 'rgba(255, 185, 150, 0.85)',
+    accent: '#D25F37',
+  },
+  'yuzu-chicken-ramen': {
+    glow: 'rgba(145, 170, 85, 0.22)',
+    glowWide: 'rgba(195, 215, 140, 0.28)',
+    borderGlow: 'rgba(235, 248, 180, 0.85)',
+    accent: '#8AA56D',
+  },
+  'truffle-mushroom-ramen': {
+    glow: 'rgba(175, 140, 100, 0.20)',
+    glowWide: 'rgba(215, 185, 150, 0.25)',
+    borderGlow: 'rgba(245, 220, 185, 0.80)',
+    accent: '#AF8C64',
+  },
+  'chili-butter-ramen': {
+    glow: 'rgba(220, 125, 45, 0.22)',
+    glowWide: 'rgba(245, 165, 95, 0.28)',
+    borderGlow: 'rgba(255, 210, 150, 0.85)',
+    accent: '#DC7D2D',
+  },
+  'shoyu-classic-ramen': {
+    glow: 'rgba(195, 145, 70, 0.20)',
+    glowWide: 'rgba(225, 185, 125, 0.25)',
+    borderGlow: 'rgba(245, 215, 165, 0.80)',
+    accent: '#C39146',
+  },
+  'miso-corn-ramen': {
+    glow: 'rgba(225, 175, 45, 0.22)',
+    glowWide: 'rgba(245, 210, 115, 0.28)',
+    borderGlow: 'rgba(255, 230, 140, 0.85)',
+    accent: '#E1AF2D',
+  },
 };
 
 export const FoodRotator: React.FC<FoodRotatorProps> = ({ onOpenProductDetails }) => {
   // Collect the 8 dishes in precise order
   const dishes: ProductDish[] = ROTATOR_DISH_IDS.map((id) => {
-    const found = SEVENTEEN_MENU_DISHES.find((d) => d.id === id);
+    const found = ALL_PRODUCTS.find((d) => d.id === id);
     if (found) return found;
-    return SEVENTEEN_MENU_DISHES[0];
+    return ALL_PRODUCTS[0];
   });
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isTouchDevice = useRef(false);
+
   const currentDish = dishes[currentIndex];
-  const currentIngredients = INGREDIENTS_BY_DISH[currentDish.id] || INGREDIENTS_BY_DISH['kumo-miso'];
+  const ambient = DISH_AMBIENT_LIGHTING[currentDish.id] || DISH_AMBIENT_LIGHTING['kumo-miso'];
 
-  // 3.8s auto-rotation interval, cleanly paused when hovered
+  // Preload all 8 rotator images on mount so switching between dishes is instantaneous and crystal-clear
   useEffect(() => {
-    if (isPaused) return;
+    dishes.forEach((dish) => {
+      const img = new Image();
+      img.src = dish.image;
+    });
+  }, [dishes]);
 
+  // Check reduced motion & touch capability on mount
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener('change', handler);
+
+    isTouchDevice.current = !window.matchMedia('(hover: hover)').matches;
+
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
+  // 4.5s calm auto-rotation interval, paused when hovered or explicitly paused
+  useEffect(() => {
+    if (isPaused || isHovered) return;
+
+    // Fixed 3s auto-rotation interval as requested, paused when hovered or explicitly paused
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % dishes.length);
-    }, 3800);
+    }, 3000);
 
     return () => clearInterval(timer);
-  }, [isPaused, dishes.length, currentIndex]);
+  }, [isPaused, isHovered, dishes.length, currentIndex]);
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev + 1) % dishes.length);
@@ -108,6 +194,26 @@ export const FoodRotator: React.FC<FoodRotatorProps> = ({ onOpenProductDetails }
 
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev - 1 + dishes.length) % dishes.length);
+  };
+
+  // Subtle parallax on desktop pointer movement (capped strictly at 4px)
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isTouchDevice.current || prefersReducedMotion) return;
+    if (!containerRef.current) return;
+
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width - 0.5) * 2; // -1 to 1
+    const y = ((e.clientY - rect.top) / rect.height - 0.5) * 2; // -1 to 1
+    setMouseOffset({ x: x * 4, y: y * 4 });
+  };
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setMouseOffset({ x: 0, y: 0 });
   };
 
   // Touch handlers for mobile swipe
@@ -119,9 +225,9 @@ export const FoodRotator: React.FC<FoodRotatorProps> = ({ onOpenProductDetails }
     if (touchStart === null) return;
     const touchEnd = e.changedTouches[0].clientX;
     const diff = touchStart - touchEnd;
-    if (diff > 50) {
+    if (diff > 45) {
       handleNext();
-    } else if (diff < -50) {
+    } else if (diff < -45) {
       handlePrev();
     }
     setTouchStart(null);
@@ -130,31 +236,32 @@ export const FoodRotator: React.FC<FoodRotatorProps> = ({ onOpenProductDetails }
   return (
     <section 
       id="continuous-showcase"
-      className="w-full relative bg-[#F3F0E9] py-16 sm:py-24 lg:py-32 overflow-hidden flex flex-col items-center justify-center font-sans"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
+      className="w-full relative bg-[#F3F0E9] py-6 sm:py-8 md:py-10 overflow-hidden flex flex-col items-center justify-center font-sans select-none"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Background Soft Natural Lighting Gradients (NO BLACK, NO DARK GRADIENT) */}
-      <div className="absolute -top-36 right-1/4 w-[500px] h-[500px] bg-[#E8D98F]/25 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute -bottom-36 left-1/4 w-[500px] h-[500px] bg-[#8AA56D]/15 rounded-full blur-[100px] pointer-events-none" />
+      {/* Background Soft Natural Ambient Gradients */}
+      <div className="absolute -top-36 right-1/4 w-[500px] h-[500px] bg-[#E8D98F]/20 rounded-full blur-[110px] pointer-events-none" />
+      <div className="absolute -bottom-36 left-1/4 w-[500px] h-[500px] bg-[#8AA56D]/15 rounded-full blur-[110px] pointer-events-none" />
       
       {/* Subtle organic dotted grid */}
-      <div className="absolute inset-0 bg-[radial-gradient(#C8C2B3_1px,transparent_1px)] [background-size:32px_32px] opacity-40 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(#C8C2B3_1px,transparent_1px)] [background-size:32px_32px] opacity-35 pointer-events-none" />
 
       {/* Outer Center Stage Container */}
-      <div className="w-[94vw] sm:w-[90vw] max-w-[1300px] mx-auto flex flex-col items-center text-center relative z-10">
+      <div className="w-[94vw] sm:w-[90vw] max-w-[1240px] mx-auto flex flex-col items-center text-center relative z-10">
         
         {/* ======================================================== */}
-        {/* 1. EDITORIAL HEADER: MINIMAL & REFINED                   */}
+        {/* 1. EDITORIAL HEADER: REFINED, SNUG PADDING              */}
         {/* ======================================================== */}
-        <div className="space-y-3 max-w-xl mx-auto mb-8 sm:mb-12">
+        <div className="space-y-2 max-w-xl mx-auto mb-3 sm:mb-4">
           
-          <div className="inline-flex items-center gap-2 bg-[#FAF9F5] border border-[#DED9CA] px-4 py-1.5 rounded-full shadow-[0_2px_8px_rgba(45,35,20,0.04)]">
-            <span className="w-2 h-2 rounded-full bg-[#D99B19] animate-pulse" />
-            <span className="text-[11px] font-mono font-bold tracking-wider text-[#77756D] uppercase">
-              معرض التذوق الحي المتواصل • CONTINUOUS FOOD SHOWCASE
+          <div className="inline-flex items-center gap-2 bg-[#FAF9F5] border border-[#DED9CA] px-3.5 py-1 rounded-full shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_2px_6px_rgba(45,35,20,0.03)]">
+            <span 
+              className="w-2 h-2 rounded-full animate-pulse transition-colors duration-700" 
+              style={{ backgroundColor: ambient.accent }}
+            />
+            <span className="text-[10.5px] font-mono font-bold tracking-wider text-[#77756D] uppercase">
+              معرض التذوق الحي المتواصل • THE LIVING ATELIER
             </span>
           </div>
 
@@ -163,52 +270,85 @@ export const FoodRotator: React.FC<FoodRotatorProps> = ({ onOpenProductDetails }
           </h2>
           
           <p className="text-xs sm:text-sm text-[#77756D] leading-relaxed">
-            استعراض بصري حي لأطباق المعلم تاتسويا المستخلصة يومياً على نار هادئة. تتناوب الأوعية تلقائياً كل أربع ثوانٍ.
+            استعراض بصري حي لأطباق المعلم تاتسويا المستخلصة على نار هادئة؛ تتناوب الأوعية برقة كل ٣ ثوانٍ في ضوئها الطبيعي.
           </p>
 
         </div>
 
         {/* ======================================================== */}
-        {/* 2. THE GRAND FOOD STAGE: 50-65% DOMINANT BOWL AREA       */}
-        {/* Isolated large physical food object + grounding shadow    */}
+        {/* 2. THE 3D TACTILE FOOD CIRCLE STAGE (INNER SHADOW FOCUS) */}
+        {/* Compact stage width so callouts wrap neatly around circle*/}
         {/* ======================================================== */}
-        <div className="relative w-full max-w-4xl min-h-[460px] sm:min-h-[540px] md:min-h-[580px] lg:min-h-[620px] flex flex-col items-center justify-center my-2 sm:my-4">
+        <div 
+          ref={containerRef}
+          onMouseMove={handleMouseMove}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          className="relative w-full max-w-2xl sm:max-w-3xl min-h-[300px] sm:min-h-[340px] md:min-h-[370px] flex flex-col items-center justify-center my-1 sm:my-2 px-3"
+        >
           
-          {/* SATELLITE FLOATING INGREDIENTS (Inside Showcase Only) */}
-          <div className="absolute inset-0 pointer-events-none hidden sm:block">
+          {/* A. DIFFUSED AMBIENT OUTER GLOW (Subtle & soft on warm canvas) */}
+          <motion.div
+            animate={{
+              backgroundColor: ambient.glow,
+              scale: isHovered ? 1.04 : 1,
+            }}
+            transition={{ duration: 1.2, ease: 'easeInOut' }}
+            className="absolute w-64 h-64 sm:w-80 sm:h-80 md:w-[380px] md:h-[380px] rounded-full blur-[60px] pointer-events-none -z-10 opacity-75"
+          />
+
+          {/* Secondary subtle halo for natural light bleed */}
+          <motion.div
+            animate={{
+              backgroundColor: ambient.glowWide,
+            }}
+            transition={{ duration: 1.4, ease: 'easeInOut' }}
+            className="absolute w-72 h-72 sm:w-88 sm:h-88 md:w-[440px] md:h-[440px] rounded-full blur-[90px] pointer-events-none -z-20 opacity-35"
+          />
+
+          {/* B. THE 4-SIDE CULINARY CALLOUTS (Snug padding, neatly framing the circle) */}
+          <div className="absolute inset-0 pointer-events-none z-30">
             <AnimatePresence mode="wait">
               <motion.div
-                key={`ingredients-${currentDish.id}`}
+                key={`callouts-${currentDish.id}`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.6 }}
+                transition={{ duration: 0.35 }}
                 className="w-full h-full relative"
               >
-                {currentIngredients.map((ing, i) => (
+                {(DISH_CALLOUTS[currentDish.id] || DISH_CALLOUTS['kumo-miso']).map((item, idx) => (
                   <motion.div
-                    key={ing.name}
-                    initial={{ opacity: 0, y: 15, scale: 0.9 }}
+                    key={item.name}
+                    initial={{ opacity: 0, y: 6, scale: 0.96 }}
                     animate={{ 
                       opacity: 1, 
-                      y: [0, -6, 0], 
+                      y: prefersReducedMotion ? 0 : [0, -2.5, 0], 
                       scale: 1,
                       transition: {
-                        y: { repeat: Infinity, duration: 4 + i, ease: 'easeInOut' },
-                        opacity: { duration: 0.5, delay: i * 0.1 },
-                        scale: { duration: 0.5, delay: i * 0.1 }
+                        y: { repeat: Infinity, duration: 4.2 + idx * 0.4, ease: 'easeInOut' },
+                        opacity: { duration: 0.35, delay: idx * 0.06 },
+                        scale: { duration: 0.35, delay: idx * 0.06 }
                       }
                     }}
-                    exit={{ opacity: 0, y: -15, scale: 0.9, transition: { duration: 0.35 } }}
-                    className={`absolute ${ing.positionClass} z-20 flex items-center gap-2.5 bg-[#FAF9F5]/90 backdrop-blur-md px-3.5 py-2 rounded-full border border-[#DED9CA] shadow-[0_8px_20px_-4px_rgba(45,35,20,0.08)]`}
+                    exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.2 } }}
+                    className={`absolute ${item.positionClass} pointer-events-auto flex items-center gap-2 bg-[#FAF9F5]/95 backdrop-blur-md px-3 py-1.5 rounded-xl border border-[#DED9CA] shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_2px_8px_rgba(45,35,20,0.05)] hover:border-[#D99B19]/50 transition-colors`}
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#8AA56D]" />
+                    <span 
+                      className="w-1.5 h-1.5 rounded-full shrink-0 transition-colors duration-500" 
+                      style={{ backgroundColor: ambient.accent }}
+                    />
                     <div className="text-right">
-                      <span className="block text-xs font-bold text-[#242421] leading-none">
-                        {ing.name}
-                      </span>
-                      <span className="block text-[10px] font-mono text-[#77756D] leading-tight dir-ltr text-left mt-0.5">
-                        {ing.nameEn}
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold text-[#242421] leading-tight">
+                          {item.name}
+                        </span>
+                        <span className="text-[8.5px] font-mono font-medium px-1.5 py-0.5 rounded bg-[#EFECE3] text-[#77756D]">
+                          {item.badge}
+                        </span>
+                      </div>
+                      <span className="block text-[9.5px] font-mono text-[#77756D] leading-tight dir-ltr text-left mt-0.5">
+                        {item.nameEn}
                       </span>
                     </div>
                   </motion.div>
@@ -217,75 +357,128 @@ export const FoodRotator: React.FC<FoodRotatorProps> = ({ onOpenProductDetails }
             </AnimatePresence>
           </div>
 
-          {/* THE MAIN FOOD BOWL: SEAMLESS CONTINUOUS EXCHANGE */}
-          <div 
-            className="relative z-10 flex flex-col items-center justify-center cursor-pointer group"
-            onClick={() => onOpenProductDetails(currentDish)}
-            title="انقر لفتح تفاصيل الطبق والوصفة الحرفية"
+          {/* C. MAIN TACTILE VESSEL WITH CRISP FOOD & INNER SHADOW EXPERIENCE (NO DROP SHADOW) */}
+          <motion.div
+            animate={
+              prefersReducedMotion
+                ? {}
+                : {
+                    x: mouseOffset.x,
+                    y: mouseOffset.y,
+                  }
+            }
+            transition={{ type: 'spring', damping: 25, stiffness: 120 }}
+            className="relative flex flex-col items-center z-10"
           >
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentDish.id}
-                initial={{ opacity: 0, scale: 1.05, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.94, y: -20 }}
-                transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                className="relative flex flex-col items-center"
+            {/* Outer Sculpted Ceramic Vessel Ring with Inset / Inner Bevel (No Outer Drop Shadow) */}
+            <div
+              onClick={() => onOpenProductDetails(currentDish)}
+              className="group relative cursor-pointer rounded-full p-2 sm:p-2.5 md:p-3 bg-[#FAF9F5] border border-[#DDD7C8]
+                shadow-[inset_0_2px_5px_rgba(255,255,255,1),inset_0_-3px_8px_rgba(45,35,20,0.12)]
+                hover:border-[#D99B19]/50
+                transition-all duration-300 ease-out"
+            >
+              
+              {/* Inner Circular Well: Rich Sunken Inner Shadow Experience */}
+              <div 
+                className="relative w-56 h-56 xs:w-64 xs:h-64 sm:w-72 sm:h-72 md:w-[310px] md:h-[310px] lg:w-[350px] lg:h-[350px] rounded-full overflow-hidden bg-[#FAF8F2]"
               >
-                {/* Visual Bowl Vessel: Physical food object directly on warm ivory surface */}
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.3, ease: 'easeOut' }}
-                  className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-[400px] md:h-[400px] lg:w-[480px] lg:h-[480px] rounded-full overflow-hidden
-                    border-[6px] sm:border-[8px] border-[#FAF9F5]
-                    shadow-[0_32px_75px_-18px_rgba(45,35,20,0.28),0_12px_30px_-6px_rgba(45,35,20,0.12),inset_0_2px_4px_rgba(255,255,255,0.9)]
-                    bg-[#FAF9F5] select-none"
-                >
-                  <img
-                    src={currentDish.image}
-                    alt={currentDish.name}
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-106 select-none"
-                    decoding="async"
-                    referrerPolicy="no-referrer"
-                  />
+                
+                {/* 1. THE FOOD IMAGE: 100% Crisp & High-Definition (Full Clarity) */}
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentDish.id}
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    transition={{ duration: 0.45, ease: 'easeOut' }}
+                    className="w-full h-full relative z-0"
+                  >
+                    {/* Continuous Micro-Floating Motion */}
+                    <motion.div
+                      animate={
+                        prefersReducedMotion
+                          ? {}
+                          : {
+                              y: [0, -2, 0],
+                            }
+                      }
+                      transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
+                      className="w-full h-full"
+                    >
+                      <img
+                        src={currentDish.image}
+                        alt={currentDish.name}
+                        loading="eager"
+                        className="w-full h-full object-cover select-none transition-transform duration-700 ease-out group-hover:scale-103"
+                        decoding="sync"
+                        referrerPolicy="no-referrer"
+                        style={{
+                          imageRendering: '-webkit-optimize-contrast',
+                          backfaceVisibility: 'hidden',
+                          transform: 'translateZ(0)',
+                        }}
+                      />
+                    </motion.div>
+                  </motion.div>
+                </AnimatePresence>
 
-                  {/* Soft organic glazed ceramic highlight ring */}
-                  <div className="absolute inset-0 rounded-full ring-1 ring-inset ring-black/10 pointer-events-none" />
+                {/* 2. INNER BORDER LIGHTING RING: Confined Strictly to the Rim Edge */}
+                <div 
+                  className="absolute inset-0 rounded-full pointer-events-none z-10 transition-colors duration-700"
+                  style={{
+                    boxShadow: `inset 0 0 0 1px ${ambient.borderGlow}`,
+                  }}
+                />
 
-                  {/* Japanese Title Seal (Subtle in Corner) */}
-                  {currentDish.japaneseTitle && (
-                    <div className="absolute top-5 right-6 bg-[#FAF9F5]/90 backdrop-blur-md text-[#242421] text-xs font-serif px-3 py-1 rounded-full border border-[#DED9CA] shadow-sm pointer-events-none">
-                      {currentDish.japaneseTitle}
-                    </div>
-                  )}
+                {/* 3. RICH TACTILE INNER SHADOW EXPERIENCE (Recessed Stoneware Depth, Zero Drop Shadow) */}
+                <div 
+                  className="absolute inset-0 rounded-full pointer-events-none z-20"
+                  style={{
+                    boxShadow: 'inset 0 18px 32px rgba(18, 12, 6, 0.58), inset 0 -14px 26px rgba(18, 12, 6, 0.42), inset 0 3px 8px rgba(0, 0, 0, 0.35), inset 0 0 20px rgba(25, 18, 10, 0.25)',
+                  }}
+                />
 
-                  {/* Interactive Hover Pill overlay */}
-                  <div className="absolute inset-0 bg-[#242421]/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[1px]">
-                    <span className="bg-[#FAF9F5] text-[#242421] text-xs font-bold px-4 py-2 rounded-full shadow-lg flex items-center gap-2 transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                      <Eye className="w-3.5 h-3.5 text-[#D99B19]" />
-                      <span>عرض تفاصيل الطبق • VIEW DISH</span>
-                    </span>
-                  </div>
-                </motion.div>
+                {/* 4. INTERACTIVE HOVER OVERLAY: Pure & Transparent */}
+                <div className="absolute inset-0 bg-[#242421]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-250 flex items-center justify-center z-30 pointer-events-none">
+                  <span className="bg-[#FAF9F5] text-[#242421] text-xs font-bold px-4 py-2 rounded-full shadow-[0_6px_20px_rgba(0,0,0,0.2)] flex items-center gap-2 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-250 border border-[#DED9CA]">
+                    <Eye className="w-3.5 h-3.5 text-[#D99B19]" />
+                    <span>عرض تشريح الطبق والوصفة • VIEW RECIPE</span>
+                  </span>
+                </div>
 
-                {/* SOFT NATURAL GROUNDING SHADOW UNDERNEATH */}
-                <div className="w-[80%] max-w-[380px] h-9 sm:h-12 bg-[#2D2314]/14 blur-2xl rounded-[100%] mx-auto mt-[-16px] sm:mt-[-22px] pointer-events-none -z-0" />
+              </div>
 
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Pause Notice on Hover (Discreet, subtle) */}
-          {isPaused && (
-            <div className="absolute bottom-1 sm:bottom-3 text-[11px] font-mono text-[#8AA56D] bg-[#FAF9F5] border border-[#DED9CA] px-3 py-1 rounded-full shadow-sm animate-fadeIn">
-              تم إيقاف التبديل التلقائي مؤقتاً لتأمل الطبق
             </div>
-          )}
+
+          </motion.div>
+
+          {/* E. Subtle Pause / Play Indicator */}
+          <div className="mt-4 flex items-center gap-2 z-20">
+            <button
+              type="button"
+              onClick={() => setIsPaused(!isPaused)}
+              className="text-[10px] font-mono text-[#77756D] hover:text-[#242421] bg-[#FAF9F5] border border-[#DED9CA]/70 px-3 py-1 rounded-full flex items-center gap-1.5 shadow-[inset_0_1px_2px_rgba(255,255,255,0.9)] transition-colors cursor-pointer hover:border-[#D99B19]"
+            >
+              {isPaused ? (
+                <>
+                  <Play className="w-2.5 h-2.5 text-[#8AA56D]" />
+                  <span>استئناف التبديل التلقائي</span>
+                </>
+              ) : (
+                <>
+                  <Pause className="w-2.5 h-2.5 text-[#D99B19]" />
+                  <span>إيقاف مؤقت لتأمل الطبق</span>
+                </>
+              )}
+            </button>
+          </div>
 
         </div>
 
         {/* ======================================================== */}
-        {/* 3. SYNCHRONIZED MINIMAL TEXT & PRICING                   */}
+        {/* 3. EDITORIAL TEXT & DETAILS (STRICTLY OUTSIDE THE BOWL)  */}
+        {/* Redesigned to breathe gracefully beneath the dish         */}
         {/* ======================================================== */}
         <div className="max-w-xl mx-auto mt-4 sm:mt-6 text-center">
           <AnimatePresence mode="wait">
@@ -298,15 +491,27 @@ export const FoodRotator: React.FC<FoodRotatorProps> = ({ onOpenProductDetails }
               className="space-y-3"
             >
               
-              {/* Category Pill */}
-              <div className="inline-flex items-center gap-2">
-                <span className="text-xs font-mono font-bold text-[#8AA56D] tracking-wider uppercase">
+              {/* Category, Number, & Japanese Title Pill (Clean & Outside) */}
+              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-[#FAF9F5] border border-[#DED9CA] shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_2px_6px_rgba(45,35,20,0.04)]">
+                <span 
+                  className="w-1.5 h-1.5 rounded-full transition-colors duration-700" 
+                  style={{ backgroundColor: ambient.accent }}
+                />
+                <span className="text-xs font-mono font-bold tracking-wider uppercase text-[#77756D]">
                   {currentDish.category}
                 </span>
-                <span className="text-[#C8C2B3]">•</span>
+                <span className="text-[#DED9CA]">•</span>
                 <span className="font-mono text-xs text-[#77756D]">
-                  صنف رقم #{currentDish.number}
+                  #{currentDish.number}
                 </span>
+                {currentDish.japaneseTitle && (
+                  <>
+                    <span className="text-[#DED9CA]">•</span>
+                    <span className="font-serif text-xs font-medium text-[#242421] tracking-wider">
+                      {currentDish.japaneseTitle}
+                    </span>
+                  </>
+                )}
               </div>
 
               {/* Dish Name: High impact typography */}
@@ -319,7 +524,7 @@ export const FoodRotator: React.FC<FoodRotatorProps> = ({ onOpenProductDetails }
                 {currentDish.nameEn} • {currentDish.subtitleEn}
               </p>
 
-              {/* Minimal Short Story */}
+              {/* Culinary Description */}
               <p className="text-xs sm:text-sm text-[#55534E] leading-relaxed max-w-md mx-auto">
                 {currentDish.description}
               </p>
@@ -340,7 +545,7 @@ export const FoodRotator: React.FC<FoodRotatorProps> = ({ onOpenProductDetails }
                 <button
                   type="button"
                   onClick={() => onOpenProductDetails(currentDish)}
-                  className="px-5 py-2.5 rounded-full bg-[#FAF9F5] text-[#242421] border border-[#DED9CA] hover:border-[#D99B19] hover:text-[#D99B19] text-xs font-bold transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+                  className="px-5 py-2.5 rounded-full bg-[#FAF9F5] text-[#242421] border border-[#DED9CA] hover:border-[#D99B19] hover:text-[#D99B19] text-xs font-bold transition-all shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_2px_8px_rgba(45,35,20,0.06)] flex items-center gap-2 cursor-pointer hover:scale-102 active:scale-98"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-[#D99B19]" />
                   <span>استكشاف الوصفة والحرفية</span>
@@ -353,7 +558,7 @@ export const FoodRotator: React.FC<FoodRotatorProps> = ({ onOpenProductDetails }
         </div>
 
         {/* ======================================================== */}
-        {/* 4. MINIMAL DISCREET PROGRESS INDICATOR (01 / 08)         */}
+        {/* 4. DISCREET PROGRESS INDICATOR (01 / 08)                  */}
         {/* ======================================================== */}
         <div className="mt-8 sm:mt-10 flex flex-col items-center gap-3">
           
@@ -367,7 +572,7 @@ export const FoodRotator: React.FC<FoodRotatorProps> = ({ onOpenProductDetails }
                   onClick={() => setCurrentIndex(index)}
                   className={`transition-all duration-300 rounded-full h-1.5 cursor-pointer ${
                     isActive
-                      ? 'w-8 bg-[#D99B19]'
+                      ? 'w-8 bg-[#D99B19] shadow-[0_1px_4px_rgba(217,155,25,0.3)]'
                       : 'w-2 bg-[#DED9CA] hover:bg-[#B5B0A2]'
                   }`}
                   title={`الانتقال إلى ${d.name}`}
@@ -391,3 +596,4 @@ export const FoodRotator: React.FC<FoodRotatorProps> = ({ onOpenProductDetails }
     </section>
   );
 };
+

@@ -21,10 +21,14 @@ export const ArtisanCtaSection: React.FC = () => {
   return (
     <section 
       id="artisan-atelier-cta"
-      className="w-full relative py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-[#FAF9F5] border-t border-[#E8E4D8] overflow-hidden"
+      className="w-full relative py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#FAF8F4] via-[#F4EFE6] to-[#ECE7DC] border-t border-[#E8E4D8] overflow-hidden"
       aria-label="Call to Action: Private Atelier Tasting Reservation"
     >
-      <div className="w-full max-w-6xl mx-auto">
+      {/* Subtle ambient warm lighting in the corner */}
+      <div className="absolute top-0 right-10 w-96 h-96 bg-[#D4AF37]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-10 w-96 h-96 bg-[#8AA56D]/10 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="w-full max-w-6xl mx-auto relative z-10">
         
         {/* TOP EDITORIAL BADGE & HEADLINE */}
         <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
@@ -41,41 +45,70 @@ export const ArtisanCtaSection: React.FC = () => {
         </div>
 
         {/* MAIN TWO-COLUMN SHOWCASE & BOOKING INTERFACE */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
           
-          {/* LEFT: THE PURE ISOLATED FOOD HERO CUTOUT WITH NATURAL SHADOW (NO BOX, NO FRAME) */}
+          {/* LEFT: LUXURY ATELIER CHEF CULINARY SHOWCASE (EYE-GRABBING, CLEAR, HIGH CONTRAST) */}
           <div className="lg:col-span-5 flex flex-col items-center justify-center relative select-none order-2 lg:order-1">
-            <div className="relative w-72 h-72 sm:w-96 sm:h-96 md:w-[420px] md:h-[420px] flex items-center justify-center">
-              {/* Gentle Floating Motion */}
-              <motion.div
-                animate={{ y: [0, -8, 0] }}
-                transition={{ duration: 5.2, repeat: Infinity, ease: 'easeInOut' }}
-                className="w-full h-full relative flex flex-col items-center justify-center"
-              >
-                {/* 100% Isolated Transparent Cutout */}
+            <motion.div 
+              whileHover={{ y: -4 }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+              className="w-full max-w-[460px] relative rounded-3xl overflow-hidden border-2 border-[#DED9CA] shadow-[0_20px_50px_rgba(40,30,15,0.12)] bg-[#242421] group"
+            >
+              {/* Ultra-premium culinary photography */}
+              <div className="relative aspect-[4/3] sm:aspect-[1/1] w-full overflow-hidden">
                 <img
-                  src="/cutouts/kumo_miso.png"
-                  alt="كومو ميسو رامن التوقيع"
+                  src="/images/atelier_chef_tasting.jpg"
+                  alt="مختبر الطهي الياباني الحي وطاولة التذوق"
                   loading="lazy"
                   decoding="async"
-                  className="w-full h-full object-contain pointer-events-none"
-                  style={{
-                    imageRendering: '-webkit-optimize-contrast',
-                  }}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
                 
-                {/* Soft Natural Grounding Drop Shadow */}
-                <div className="w-[82%] h-8 sm:h-10 bg-[#2A2012] blur-2xl opacity-35 rounded-[100%] mt-[-18px] pointer-events-none -z-10" />
-              </motion.div>
-            </div>
+                {/* Atmospheric gradient overlay for contrast */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1A1815]/90 via-[#1A1815]/30 to-transparent pointer-events-none" />
 
-            {/* Subtle atelier guarantee note */}
+                {/* Top Badge: Live exclusivity indicator */}
+                <div className="absolute top-4 right-4 z-10">
+                  <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1A1815]/85 backdrop-blur-md border border-[#D4AF37]/50 text-white text-xs font-mono">
+                    <span className="w-2 h-2 rounded-full bg-[#D4AF37] animate-ping" />
+                    <span className="font-bold text-[#E5C158]">متاح ٤ مقاعد فقط هذا الأسبوع</span>
+                  </span>
+                </div>
+
+                {/* Bottom Overlay Info */}
+                <div className="absolute bottom-4 right-4 left-4 z-10 text-right space-y-1">
+                  <div className="flex items-center gap-2 text-xs text-[#E5C158] font-mono uppercase tracking-wider">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>MASTER CHEF ATELIER • طاولة الشيف الخاصة</span>
+                  </div>
+                  <h4 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+                    جلسات التذوق المعملية الحصرية
+                  </h4>
+                  <p className="text-xs text-stone-300 font-medium">
+                    استخلاص حراري مباشر، واغيو A5 معتق، وخيوط نودلز طازجة تُعد أمام عينيك.
+                  </p>
+                </div>
+              </div>
+
+              {/* Bottom Atelier Credentials Bar */}
+              <div className="p-4 bg-[#1F1E1B] border-t border-stone-800 flex items-center justify-between text-xs text-stone-300">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#8AA56D]" />
+                  <span className="font-mono">جلسة حميمية لـ ١٢ ضيفاً</span>
+                </div>
+                <span className="text-[#D4AF37] font-mono font-bold tracking-wider">
+                  OMAKASE 7-COURSES
+                </span>
+              </div>
+            </motion.div>
+
+            {/* Atelier guarantee note */}
             <div className="mt-4 text-center">
               <span className="text-xs font-mono text-[#77756D] uppercase tracking-wider block">
-                مرق معتق ببطء لمدة ١٤ ساعة • عجين نودلز يومي طازج
+                مرق معتق ببطء لمدة ١٤ ساعة • شاي ماتشا معتق من أوجي
               </span>
               <span className="text-[11px] text-[#A39E8F] mt-1 block">
-                متاح يومياً من ٦:٠٠ مساءً حتى ١١:٣٠ مساءً
+                الحجز المسبق إلزامي لضمان جودة الاستخلاص الطازج
               </span>
             </div>
           </div>
@@ -205,14 +238,20 @@ export const ArtisanCtaSection: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Submit Button */}
-                    <button
+                    {/* Eye-Grabbing Premium Submit Button */}
+                    <motion.button
+                      whileHover={{ scale: 1.015, y: -2 }}
+                      whileTap={{ scale: 0.985 }}
                       type="submit"
-                      className="w-full py-4 rounded-xl bg-[#242421] hover:bg-[#383733] text-[#FAF9F5] text-sm font-bold tracking-wide transition-all shadow-[0_4px_16px_rgba(36,36,33,0.18)] flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+                      className="group relative w-full py-4 sm:py-4.5 rounded-xl bg-gradient-to-r from-[#242421] via-[#33302B] to-[#242421] hover:from-[#1A1815] hover:to-[#1A1815] text-[#FAF9F5] text-sm sm:text-base font-bold tracking-wide transition-all duration-300 shadow-[0_8px_24px_rgba(36,36,33,0.22)] hover:shadow-[0_12px_32px_rgba(212,175,55,0.28)] flex items-center justify-center gap-3 cursor-pointer border border-[#D4AF37]/50 hover:border-[#D4AF37] overflow-hidden"
                     >
-                      <span>تأكيد طلب حجز التجربة الحرفية</span>
-                      <ArrowLeft className="w-4 h-4 text-[#D99B19]" />
-                    </button>
+                      {/* Subtle gold sheen animation on hover */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
+                      
+                      <Sparkles className="w-4 h-4 text-[#E5C158] transition-transform duration-300 group-hover:rotate-12" />
+                      <span className="font-extrabold text-[#FAF9F5]">تأكيد طلب حجز التجربة الحرفية</span>
+                      <ArrowLeft className="w-4 h-4 text-[#E5C158] transition-transform duration-300 group-hover:-translate-x-1" />
+                    </motion.button>
 
                     {/* Reassurance Footer */}
                     <div className="flex flex-wrap items-center justify-between text-[11px] text-[#77756D] pt-2 border-t border-[#E4E0D2]">

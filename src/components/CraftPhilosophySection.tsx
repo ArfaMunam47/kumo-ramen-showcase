@@ -160,16 +160,17 @@ export const CraftPhilosophySection: React.FC = () => {
             <div className="pt-3">
               {!reservationBooked ? (
                 <motion.button 
-                  whileHover={{ scale: 1.03, y: -2 }}
-                  whileTap={{ scale: 0.97 }}
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => {
                     setReservationBooked(true);
                     setTimeout(() => setReservationBooked(false), 7000);
                   }}
-                  className="w-full sm:w-auto px-8 py-4 rounded-full bg-[#242421] text-[#FAF9F5] text-xs sm:text-sm font-bold hover:bg-[#383733] transition-all duration-300 shadow-[0_10px_24px_rgba(0,0,0,0.18)] flex items-center justify-center gap-3 cursor-pointer"
+                  className="group relative w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-[#242421] via-[#33302B] to-[#242421] hover:from-[#1A1815] hover:to-[#1A1815] text-[#FAF9F5] text-sm font-bold transition-all duration-300 shadow-[0_8px_24px_rgba(36,36,33,0.2)] hover:shadow-[0_12px_28px_rgba(212,175,55,0.25)] flex items-center justify-center gap-3 cursor-pointer border border-[#D4AF37]/50 hover:border-[#D4AF37] overflow-hidden"
                 >
-                  <Calendar className="w-4 h-4 text-[#D99B19]" />
-                  <span>حجز مقعد في طاولة التذوق القادمة (مجاناً مبدئياً)</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
+                  <Calendar className="w-4 h-4 text-[#E5C158] transition-transform duration-300 group-hover:rotate-6" />
+                  <span className="font-extrabold text-[#FAF9F5]">حجز مقعد في طاولة التذوق القادمة</span>
                 </motion.button>
               ) : (
                 <div className="px-6 py-4 rounded-2xl bg-[#8AA56D] text-white text-xs sm:text-sm font-bold flex items-center gap-3 shadow-md animate-fadeIn">
@@ -180,26 +181,16 @@ export const CraftPhilosophySection: React.FC = () => {
             </div>
           </div>
 
-          {/* Left Column in RTL (5 Cols): Atmospheric Tasting Table Photography */}
+          {/* Left Column in RTL (5 Cols): Clean Luxury Product Photography (No text overlays) */}
           <div className="lg:col-span-5">
-            <div className="relative aspect-[4/3] sm:aspect-[16/11] rounded-[28px] overflow-hidden border border-[#DED9CA] shadow-[0_16px_36px_-10px_rgba(40,30,15,0.15)] group">
+            <div className="relative aspect-[4/3] sm:aspect-[16/11] rounded-[28px] overflow-hidden border-2 border-[#DED9CA] shadow-[0_20px_45px_-10px_rgba(40,30,15,0.14)] group bg-[#FAF9F5]">
               <img 
-                src="/src/assets/images/ingredient_tasting_bowls_1789137296645.jpg"
-                alt="طاولة التذوق المعملية"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                src="/images/luxury_ramen_product.jpg"
+                alt="طبق الرامن الحرفي الفاخر"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 decoding="async"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-              
-              <div className="absolute bottom-4 right-4 left-4 flex items-center justify-between text-xs text-[#FAF9F5] font-mono">
-                <span className="bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/20">
-                  معمل التذوق السري • كيوتو
-                </span>
-                <span className="text-[#D99B19] font-bold">
-                  OMAKASE FLIGHT
-                </span>
-              </div>
             </div>
           </div>
 

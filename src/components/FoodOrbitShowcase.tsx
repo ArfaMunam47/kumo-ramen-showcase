@@ -8,6 +8,13 @@ import {
 } from 'lucide-react';
 import { ProductDish, ALL_PRODUCTS } from '../data/arabicShowcaseData';
 
+// Direct asset imports for 100% infallible Vite bundling in local Chrome & production
+import bowlGoldenMiso from '../assets/cutouts/bowl_golden_miso.png';
+import bowlChiliButter from '../assets/cutouts/bowl_chili_butter.png';
+import bowlSpicySesame from '../assets/cutouts/bowl_spicy_sesame.png';
+import bowlCitrusShio from '../assets/cutouts/bowl_citrus_shio.png';
+import bowlTruffleShoyu from '../assets/cutouts/bowl_truffle_shoyu.png';
+
 export interface ShowcaseDishItem {
   id: string;
   name: string;
@@ -15,6 +22,7 @@ export interface ShowcaseDishItem {
   subtitle: string;
   price: string;
   image: string;
+  fallbackImage: string;
 }
 
 // 5 Ultra-Clean 3D Transparent Cutout Ceramic Ramen Bowls (Zero background, zero artifacts, intact ceramic bases)
@@ -25,7 +33,8 @@ const SHOWCASE_DISHES: ShowcaseDishItem[] = [
     nameEn: 'Golden Miso Ramen',
     subtitle: 'مرق ميسو غني وكريمي مع شريحة شاشو طرية وبيض معتق',
     price: '€14',
-    image: '/cutouts/bowl_golden_miso.png',
+    image: bowlGoldenMiso,
+    fallbackImage: '/cutouts/bowl_golden_miso.png',
   },
   {
     id: 'chili-butter-ramen',
@@ -33,7 +42,8 @@ const SHOWCASE_DISHES: ShowcaseDishItem[] = [
     nameEn: 'Hokkaido Chili Butter Miso',
     subtitle: 'مرق ميسو مدخن مع زبدة هوكايدو الذائبة وخيوط الفلفل الحريرية',
     price: '€15.5',
-    image: '/cutouts/bowl_chili_butter.png',
+    image: bowlChiliButter,
+    fallbackImage: '/cutouts/bowl_chili_butter.png',
   },
   {
     id: 'spicy-sesame-ramen',
@@ -41,7 +51,8 @@ const SHOWCASE_DISHES: ShowcaseDishItem[] = [
     nameEn: 'Spicy Sesame Tantanmen',
     subtitle: 'مرق التانتانمن المحمص الحار مع زيت الفلفل الحرفي',
     price: '€15',
-    image: '/cutouts/bowl_spicy_sesame.png',
+    image: bowlSpicySesame,
+    fallbackImage: '/cutouts/bowl_spicy_sesame.png',
   },
   {
     id: 'citrus-shio-ramen',
@@ -49,7 +60,8 @@ const SHOWCASE_DISHES: ShowcaseDishItem[] = [
     nameEn: 'Citrus Shio Ramen',
     subtitle: 'مرق دجاج ذهبي نقي متبل بملح أوكيناوا وقشور اليوزو المنعشة',
     price: '€14.5',
-    image: '/cutouts/bowl_citrus_shio.png',
+    image: bowlCitrusShio,
+    fallbackImage: '/cutouts/bowl_citrus_shio.png',
   },
   {
     id: 'truffle-mushroom-ramen',
@@ -57,7 +69,8 @@ const SHOWCASE_DISHES: ShowcaseDishItem[] = [
     nameEn: 'Black Truffle Shoyu Ramen',
     subtitle: 'مرق شوّيو حريري مع شرائح الكمأة الإيطالية وزيت الكمأة المعتق',
     price: '€17',
-    image: '/cutouts/bowl_truffle_shoyu.png',
+    image: bowlTruffleShoyu,
+    fallbackImage: '/cutouts/bowl_truffle_shoyu.png',
   },
 ];
 
@@ -235,24 +248,21 @@ export const FoodOrbitShowcase: React.FC<FoodOrbitShowcaseProps> = ({ onSelectPr
           const isVisible = Math.abs(diff) <= 1;
           const xOffset = getHorizontalOffset(diff);
 
-          // 3D Depth-of-field configuration:
-          // Center: scale 1.0, 100% crisp (0px blur), opacity 1, top z-index
-          // Left & Right: scale 0.68, gentle optical softness (0.8px blur), opacity 0.88
-          // Hidden offscreen: scale 0.35, 0 opacity
-          let scale = 0.68;
-          let opacity = 0.88;
-          let blurValue = 0.8;
+          // Depth configuration:
+          // Center: scale 1.0, 100% crisp, opacity 1, top z-index (30)
+          // Left & Right: scale 0.66, dimmed (opacity 0.35) with glassmorphism effect, zIndex 15
+          // Hidden offscreen: scale 0.35, 0 opacity, zIndex 5
+          let scale = 0.66;
+          let opacity = 0.35;
           let zIndex = 15;
 
           if (isCenter) {
             scale = 1;
             opacity = 1;
-            blurValue = 0;
             zIndex = 30;
           } else if (!isVisible) {
             scale = 0.35;
             opacity = 0;
-            blurValue = 6;
             zIndex = 5;
           }
 
@@ -264,7 +274,6 @@ export const FoodOrbitShowcase: React.FC<FoodOrbitShowcaseProps> = ({ onSelectPr
                 x: xOffset,
                 scale,
                 opacity,
-                filter: `blur(${blurValue}px)`,
                 zIndex,
               }}
               transition={{
@@ -274,9 +283,8 @@ export const FoodOrbitShowcase: React.FC<FoodOrbitShowcaseProps> = ({ onSelectPr
               whileHover={
                 !isCenter && isVisible
                   ? {
-                      scale: 0.78,
-                      opacity: 1,
-                      filter: 'blur(0px)',
+                      scale: 0.72,
+                      opacity: 0.7,
                     }
                   : {}
               }
@@ -299,69 +307,108 @@ export const FoodOrbitShowcase: React.FC<FoodOrbitShowcaseProps> = ({ onSelectPr
               tabIndex={isVisible ? 0 : -1}
               aria-label={isCenter ? `عرض تفاصيل ${dish.name}` : `اختيار ${dish.name}`}
             >
-              {/* Center Focus Bowl: Large, crisp, gentle float & rich contact drop shadow */}
+              {/* Center Focus Bowl: Hero 3D floating presentation with realistic physical drop shadow */}
               {isCenter ? (
                 <div className="relative flex flex-col items-center group">
                   <motion.div
                     animate={{
-                      y: [0, -6, 0],
+                      y: [0, -8, 0],
                     }}
                     transition={{
-                      duration: 4.2,
+                      duration: 4.5,
                       repeat: Infinity,
                       ease: 'easeInOut',
                     }}
-                    className="relative w-[210px] xs:w-[240px] sm:w-[280px] md:w-[310px] aspect-square flex items-center justify-center"
+                    className="relative w-[220px] xs:w-[250px] sm:w-[290px] md:w-[330px] aspect-square flex items-center justify-center"
                   >
                     <img
                       src={dish.image}
                       alt={dish.name}
+                      loading="eager"
+                      decoding="async"
+                      onError={(e) => {
+                        if (dish.fallbackImage && e.currentTarget.src !== dish.fallbackImage) {
+                          e.currentTarget.src = dish.fallbackImage;
+                        }
+                      }}
+                      style={{
+                        filter: 'drop-shadow(0 16px 26px rgba(28, 18, 10, 0.36)) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.20))',
+                      }}
                       className="w-full h-full object-contain pointer-events-none select-none group-hover:scale-102 transition-transform duration-300"
                     />
 
                     {/* Subtle inspection badge on hover */}
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-250 pointer-events-none">
-                      <span className="bg-[#FAF9F5]/95 text-[#242421] text-xs font-bold px-3 py-1.5 rounded-full shadow-[0_4px_14px_rgba(0,0,0,0.15)] flex items-center gap-1.5 border border-[#DED9CA]">
+                      <span className="bg-[#FAF9F5]/95 text-[#242421] text-xs font-bold px-3.5 py-1.5 rounded-full shadow-[0_4px_14px_rgba(0,0,0,0.15)] flex items-center gap-1.5 border border-[#DED9CA]">
                         <Eye className="w-3.5 h-3.5 text-[#D99B19]" />
                         <span>معاينة المكونات</span>
                       </span>
                     </div>
                   </motion.div>
 
-                  {/* NATURAL FLOATING SHADOW UNDER CENTER BOWL */}
+                  {/* REALISTIC 3D FLOATING GROUND DROP SHADOW UNDER CENTER BOWL */}
                   <motion.div
                     animate={{
-                      scaleX: [1, 0.95, 1],
-                      scaleY: [1, 0.92, 1],
-                      opacity: [1, 0.86, 1],
+                      scaleX: [1, 0.93, 1],
+                      scaleY: [1, 0.90, 1],
+                      opacity: [1, 0.82, 1],
                     }}
                     transition={{
-                      duration: 4.2,
+                      duration: 4.5,
                       repeat: Infinity,
                       ease: 'easeInOut',
                     }}
                     className="relative flex flex-col items-center -mt-9 sm:-mt-12 pointer-events-none w-full"
                   >
-                    {/* Razor contact shadow */}
-                    <div className="w-[34%] h-2.5 bg-[#140e08]/60 rounded-[100%] blur-[2px]" />
-                    {/* Dense occlusion shadow */}
-                    <div className="w-[50%] h-4 sm:h-5 bg-[#1a120a]/40 rounded-[100%] blur-md -mt-1" />
+                    {/* Razor contact shadow directly under ceramic foot */}
+                    <div className="w-[36%] h-2.5 bg-[#120B05]/65 rounded-[100%] blur-[2px]" />
+                    {/* Dense ambient occlusion core shadow */}
+                    <div className="w-[56%] h-4.5 sm:h-5.5 bg-[#1C1208]/45 rounded-[100%] blur-[6px] -mt-1" />
                     {/* Broad soft ground shadow */}
-                    <div className="w-[70%] h-6 sm:h-8 bg-[#2b1f14]/25 rounded-[100%] blur-xl -mt-2.5 sm:-mt-3" />
+                    <div className="w-[78%] h-7 sm:h-9 bg-[#2E1F12]/24 rounded-[100%] blur-xl -mt-2.5 sm:-mt-3" />
+                    {/* Ambient warm table reflection */}
+                    <div className="w-[88%] h-8 sm:h-10 bg-[#D4AF37]/12 rounded-[100%] blur-2xl -mt-3" />
                   </motion.div>
                 </div>
               ) : (
-                /* Inactive Side Bowls: Smaller, visible, gentle depth softness */
+                /* Inactive Side Bowls: Subdued, ethereal 3D floating with glassmorphic translucency & zero white background */
                 <div className="relative flex flex-col items-center group">
-                  <div className="relative w-[180px] xs:w-[200px] sm:w-[230px] md:w-[250px] aspect-square flex items-center justify-center transition-transform duration-300 group-hover:scale-103">
+                  {/* Floating 3D Bowl with Glassmorphic Lens Atmosphere */}
+                  <div className="relative w-[160px] xs:w-[180px] sm:w-[210px] md:w-[230px] aspect-square flex items-center justify-center">
+                    
+                    {/* Ultra-subtle frosted glass circular atmosphere - purely transparent, zero white background */}
+                    <div className="absolute inset-2 rounded-full backdrop-blur-md bg-white/[0.04] border border-white/[0.18] shadow-[inset_0_1px_2px_rgba(255,255,255,0.3)] pointer-events-none" />
+
+                    {/* Cutout Bowl with Subdued Depth */}
                     <img
                       src={dish.image}
                       alt={dish.name}
-                      className="w-full h-full object-contain pointer-events-none select-none"
+                      loading="eager"
+                      decoding="async"
+                      onError={(e) => {
+                        if (dish.fallbackImage && e.currentTarget.src !== dish.fallbackImage) {
+                          e.currentTarget.src = dish.fallbackImage;
+                        }
+                      }}
+                      style={{
+                        filter: 'drop-shadow(0 8px 18px rgba(30, 20, 10, 0.12))',
+                      }}
+                      className="relative z-10 w-full h-full object-contain pointer-events-none select-none transition-transform duration-300 group-hover:scale-105"
                     />
+
+                    {/* Diagonal Glass Reflection Specular Sheen */}
+                    <div className="absolute inset-3 rounded-full bg-gradient-to-tr from-transparent via-white/[0.18] to-transparent pointer-events-none z-20 mix-blend-overlay" />
+
+                    {/* Subtle Glassmorphic Mini Action Pill on Hover */}
+                    <div className="absolute -bottom-2 inset-x-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-30">
+                      <span className="bg-[#171614]/80 backdrop-blur-md text-[#E5C158] text-[10px] sm:text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full border border-[#D4AF37]/40 shadow-sm flex items-center gap-1">
+                        <span>{isLeft ? 'السابق' : 'التالي'}</span>
+                      </span>
+                    </div>
                   </div>
-                  {/* Soft side ground shadow */}
-                  <div className="w-[45%] h-2.5 bg-[#231A10]/20 rounded-[100%] blur-sm -mt-8 pointer-events-none" />
+
+                  {/* Soft subtle side ground shadow */}
+                  <div className="w-[45%] h-2 bg-[#231A10]/12 rounded-[100%] blur-sm -mt-5 pointer-events-none" />
                 </div>
               )}
             </motion.div>

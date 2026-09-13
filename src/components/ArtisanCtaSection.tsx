@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Calendar, Clock, Users, Sparkles, CheckCircle2, Phone, MapPin, ArrowLeft } from 'lucide-react';
+import chefTastingJpg from '../assets/images/atelier_chef_tasting.jpg';
+import chefTastingWebp from '../assets/images/atelier_chef_tasting.webp';
+import { CHEF_THUMB_B64 } from '../assets/images/chef_thumb_b64';
 
 export const ArtisanCtaSection: React.FC = () => {
   const [guests, setGuests] = useState('2');
@@ -54,15 +57,31 @@ export const ArtisanCtaSection: React.FC = () => {
               transition={{ duration: 0.4, ease: 'easeOut' }}
               className="w-full max-w-[460px] relative rounded-3xl overflow-hidden border-2 border-[#DED9CA] shadow-[0_20px_50px_rgba(40,30,15,0.12)] bg-[#242421] group"
             >
-              {/* Ultra-premium culinary photography */}
-              <div className="relative aspect-[4/3] sm:aspect-[1/1] w-full overflow-hidden">
-                <img
-                  src="/images/atelier_chef_tasting.jpg"
-                  alt="مختبر الطهي الياباني الحي وطاولة التذوق"
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                />
+              {/* Ultra-premium culinary photography with instant zero-delay render */}
+              <div 
+                className="relative aspect-[4/3] sm:aspect-[1/1] w-full overflow-hidden bg-[#1E1B18]"
+                style={{
+                  backgroundImage: `url(${CHEF_THUMB_B64})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              >
+                <picture>
+                  <source srcSet={chefTastingWebp} type="image/webp" />
+                  <img
+                    src={chefTastingJpg}
+                    alt="مختبر الطهي الياباني الحي وطاولة التذوق"
+                    loading="eager"
+                    decoding="async"
+                    fetchPriority="high"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    onError={(e) => {
+                      if (e.currentTarget.src !== '/images/atelier_chef_tasting.jpg') {
+                        e.currentTarget.src = '/images/atelier_chef_tasting.jpg';
+                      }
+                    }}
+                  />
+                </picture>
                 
                 {/* Atmospheric gradient overlay for contrast */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1A1815]/90 via-[#1A1815]/30 to-transparent pointer-events-none" />
